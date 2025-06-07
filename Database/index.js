@@ -10,5 +10,5 @@ module.exports = {
     RegisterUser,
     LoginUser,
     AddSound,
-    PlaysSound
+    PlaySound
 }

@@ -33,7 +33,6 @@ const soundStorage = multer.diskStorage({
   }
 })
 
-
 const uploadProfile = multer({ storage: profileStorage })
 const uploadSound = multer({ storage: soundStorage })
 
@@ -69,7 +68,13 @@ app.post('/upload-sound', uploadSound.single('soundFile'), (req, res) => {
     const soundName = req.file.originalname
     const serverSoundName = req.file.filename
 
-    //add database record
+    Database.AddSound(userId, serverSoundName, soundName)
+        .then((result) => {
+            res.status(200).json({ success: true, result });
+        })
+        .catch(err => {
+            res.status(500).json({ error: 'Failed to add new sound' })
+        })
 })
 
 
@@ -96,8 +101,6 @@ io.on('connection', (socket) => {
                 socket.emit('login-failure', 'User login failure')
             })
     })
-
-    //add sound
 
     //play sound
 
