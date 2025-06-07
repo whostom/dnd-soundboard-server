@@ -2,7 +2,7 @@ const db = require('./DbConnection')
 
 function RequestAllSounds() {
     return new Promise((resolve, reject) => {
-        const query = 'SELECT name, server_name as sound, users.login as author, profile as author_profile FROM sounds JOIN users on users.login = sounds.author_id'
+        const query = 'SELECT sound_id, name, users.login as author, profile as author_profile FROM sounds JOIN users on users.login = sounds.author_id'
 
         db.query(query, [], (err, results) => {
             if (err) {
@@ -19,11 +19,9 @@ function RequestAllSounds() {
                     result.author_profile = `mnt/dnd-soundboard/profiles/default.png`
                     //add default.png on server
                 }
-
-                result.sound = `mnt/dnd-soundboard/sounds/${result.sound}`
             })
 
-            console.log('Users read successfully:', results)
+            console.log('Sounds read successfully:', results)
             resolve(results)
         })
     })
