@@ -1,6 +1,6 @@
 const db = require('./DbConnection')
 const { v4: uuid } = require('uuid')
-const saveImg = require('./SaveImg')
+//const saveImg = require('./SaveImg')
 
 function UpdateProfile(loggedUserId, profilePicture) {
     return new Promise((resolve, reject) => {
@@ -9,7 +9,7 @@ function UpdateProfile(loggedUserId, profilePicture) {
 
         if (profilePicture) {
             fileName += profilePicture.type
-            saveImg.SaveImg(profilePicture.content,'/profiles/' + fileName)
+            //saveImg.SaveImg(profilePicture.content,'/profiles/' + fileName)
         }
 
         db.query(query, [fileName, loggedUserId], (err, results) => {

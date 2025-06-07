@@ -44,7 +44,6 @@ io.on('connection', (socket) => {
             })
     })
 
-
     socket.on('update-profile', ({ loggedUser, profilePicture}) => {
         Database.UpdateProfile(loggedUser, profilePicture)
             .then((result) => {
@@ -55,7 +54,13 @@ io.on('connection', (socket) => {
             })
     })
 
-    
+    //add sound
+
+    //play sound
+
+    //inform others about playing sound
+
+    //queue
 
     
 
