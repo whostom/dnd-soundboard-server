@@ -10,16 +10,16 @@ function RequestAllSounds() {
                 return reject(err)
             }
 
-            results.forEach(result => {
-                console.log(result)
-                if (result.author_profile) {
-                    result.author_profile = `mnt/dnd-soundboard/profiles/${result.profile}`
-                }
-                else {
-                    result.author_profile = `mnt/dnd-soundboard/profiles/default.png`
-                    //add default.png on server
-                }
-            })
+            // results.forEach(result => {
+            //     console.log(result)
+            //     if (result.author_profile) {
+            //         result.author_profile = `mnt/dnd-soundboard/profiles/${result.profile}`
+            //     }
+            //     else {
+            //         result.author_profile = `mnt/dnd-soundboard/profiles/default.png`
+            //         //add default.png on server
+            //     }
+            // })
 
             console.log('Sounds read successfully:', results)
             resolve(results)

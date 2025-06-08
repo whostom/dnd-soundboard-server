@@ -44,6 +44,8 @@ const io = new Server(server, {
     }
 })
 
+const onlineUsers = new Map();
+
 app.use(cors())
 
 app.post('/update-profile', uploadProfile.single('profilePicture'), (req, res) => {
@@ -94,6 +96,7 @@ io.on('connection', (socket) => {
     socket.on('login-user', ({ username, hashedPassword, email }) => {
         Database.LoginUser(username, hashedPassword, email)
             .then(({ user, token }) => {
+                onlineUsers.set(loggedUser, socket.id)
                 socket.emit('login-success', { user, token })
                 console.log('User logged in:', user.user_id, socket.id)
             })

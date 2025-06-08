@@ -10,6 +10,7 @@ function AddSound(userId, serverSoundName, soundName) {
                 return reject(err);
             }
             console.log('Sound added successfully:', result);
+            return resolve()
         });
     });
 }
