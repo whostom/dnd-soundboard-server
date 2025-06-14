@@ -11,17 +11,6 @@ const { v4: uuidv4 } = require('uuid');
 
 const basePath = '/mnt/dnd-soundboard'
 
-const profileStorage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, path.join(basePath, 'profiles'))
-  },
-  filename: (req, file, cb) => {
-    const ext = path.extname(file.originalname)
-    const fileName = new uuidv4()
-    cb(null, fileName + ext)
-  }
-})
-
 const soundStorage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, path.join(basePath, 'sounds'))
@@ -33,7 +22,6 @@ const soundStorage = multer.diskStorage({
   }
 })
 
-const uploadProfile = multer({ storage: profileStorage })
 const uploadSound = multer({ storage: soundStorage })
 
 const io = new Server(server, {
@@ -44,27 +32,15 @@ const io = new Server(server, {
     }
 })
 
-const onlineUsers = new Map();
+const onlineUsers = []
 
 app.use(cors())
 
-app.post('/update-profile', uploadProfile.single('profilePicture'), (req, res) => {
-    const userId = req.body.userId
-    const serverProfileName = req.file.filename
 
-    if (!userId || !profilePicture) {
-        return res.status(400).json({ error: 'Missing userId or profilePicture' })
-    }
+//get all categories
 
-    Database.UpdateProfile(userId, serverProfileName)
-        .then((result) => {
-            res.status(200).json({ success: true, result });
-        })
-        .catch(err => {
-            res.status(500).json({ error: 'Failed to update profile' })
-        })
-})
 
+//poprawic
 app.post('/upload-sound', uploadSound.single('soundFile'), (req, res) => {
     const userId = req.body.userId
     const soundName = req.file.originalname
@@ -79,39 +55,34 @@ app.post('/upload-sound', uploadSound.single('soundFile'), (req, res) => {
         })
 })
 
+//edit sound (soundId)
 
-io.on('connection', (socket) => {
+
+//delete sound (soundId)
+
+
+//get-sounds
+//podaje directory, jesli puste to podajhe wszystko
+//sprawdzam w realtions w jaki folderze sa dane dzwieki 
+
+
+//play sound (soundId)
+//queue
+
+
+//search
+
+
+io.on('connection', (socket) => { 
     console.log('User connected:', socket.id)
+    onlineUsers.push(socket.id)
 
-    socket.on('register-user', ({ username, password, email }) => {
-        Database.RegisterUser(username, password, email)
-            .then(() => {
-                socket.emit('register-success', 'User added successfully')
-            })
-            .catch(() => {
-                socket.emit('register-failure', 'Error adding user')
-            })
-    })
+    //send new sounds to connected users
+    //new-sound
 
-    socket.on('login-user', ({ username, hashedPassword, email }) => {
-        Database.LoginUser(username, hashedPassword, email)
-            .then(({ user, token }) => {
-                onlineUsers.set(loggedUser, socket.id)
-                socket.emit('login-success', { user, token })
-                console.log('User logged in:', user.user_id, socket.id)
-            })
-            .catch(() => {
-                socket.emit('login-failure', 'User login failure')
-            })
-    })
+    //inform others about playing sound 
+    //gratis
 
-    //play sound
-
-    //inform others about playing sound
-
-    //queue
-
-    
 
     socket.on('disconnect', () => {
         console.log('User disconnected')

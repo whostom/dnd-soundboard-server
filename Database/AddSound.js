@@ -1,5 +1,7 @@
 const db = require('./DbConnection')
 
+//tylko mp3!!!!!
+
 function AddSound(userId, serverSoundName, soundName) {
     return new Promise((resolve, reject) => {
         const query = 'INSERT INTO `sounds` (`name`, `server_name`, `author_id`) VALUES (?, ?, ?)'
