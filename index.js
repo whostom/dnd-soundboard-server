@@ -37,16 +37,22 @@ const onlineUsers = []
 app.use(cors())
 
 
-//get all categories
+app.post('/get-all-categories',(req, res) => {
+    Database.GetAllCategories()
+        .then((result) => {
+            res.status(200).json({ success: true, result });
+        })
+        .catch(err => {
+            res.status(500).json({ error: 'Failed to get all categories' })
+        })
+})
 
-
-//poprawic
 app.post('/upload-sound', uploadSound.single('soundFile'), (req, res) => {
-    const userId = req.body.userId
     const soundName = req.file.originalname
     const serverSoundName = req.file.filename
+    const icon = req.icon
 
-    Database.AddSound(userId, serverSoundName, soundName)
+    Database.AddSound(soundName, icon, serverSoundName)
         .then((result) => {
             res.status(200).json({ success: true, result });
         })
@@ -55,16 +61,44 @@ app.post('/upload-sound', uploadSound.single('soundFile'), (req, res) => {
         })
 })
 
-//edit sound (soundId)
+app.post('/edit-sound', (req, res) => {
+    const soundId = req.soundId
+    const newName = req.newName
+    const newIcon = req.newIcon
+    const newCategory = req.category
 
+    Database.AddSound(soundId, newName, newIcon, newCategory)
+        .then((result) => {
+            res.status(200).json({ success: true, result });
+        })
+        .catch(err => {
+            res.status(500).json({ error: 'Failed to edit sound' })
+        })
+})
 
-//delete sound (soundId)
+app.post('/edit-sound', (req, res) => {
+    const soundId = req.soundId
 
+    Database.DeleteSound(soundId, newName, newIcon, newCategory)
+        .then((result) => {
+            res.status(200).json({ success: true, result });
+        })
+        .catch(err => {
+            res.status(500).json({ error: 'Failed to delete sound' })
+        })
+})
 
-//get-sounds
-//podaje directory, jesli puste to podajhe wszystko
-//sprawdzam w realtions w jaki folderze sa dane dzwieki 
+app.post('/get-sounds', (req, res) => {
+    const folderId = req.folderId
 
+    Database.RequestAllSounds(folderId)
+        .then((result) => {
+            res.status(200).json({ success: true, result });
+        })
+        .catch(err => {
+            res.status(500).json({ error: 'Failed to get sound list' })
+        })
+})
 
 //play sound (soundId)
 //queue
@@ -76,9 +110,6 @@ app.post('/upload-sound', uploadSound.single('soundFile'), (req, res) => {
 io.on('connection', (socket) => { 
     console.log('User connected:', socket.id)
     onlineUsers.push(socket.id)
-
-    //send new sounds to connected users
-    //new-sound
 
     //inform others about playing sound 
     //gratis

@@ -1,14 +1,18 @@
 const db = require('./DbConnection')
-const { RegisterUser } = require('./RegisterUser')
-const { LoginUser } = require('./LoginUser')
 const { AddSound } = require('./AddSound')
 const { PlaySound } = require('./PlaySound')
+const { EditSound } = require('./EditSound')
+const { GetAllCategories } = require('./GetAllCategories')
+const { RequestAllSounds } = require('./RequestAllSounds')
+const { DeleteSound } = require('./DeleteSound')
 
 
 module.exports = {
     db,
-    RegisterUser,
-    LoginUser,
     AddSound,
-    PlaySound
+    PlaySound,
+    EditSound,
+    GetAllCategories,
+    RequestAllSounds,
+    DeleteSound
 }

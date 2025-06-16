@@ -1,8 +1,8 @@
 const db = require('./DbConnection')
 
-function RequestAllSounds() {
+function RequestAllSounds(folderId) {
     return new Promise((resolve, reject) => {
-        const query = 'SELECT sound_id, name, users.login as author, profile as author_profile FROM sounds JOIN users on users.login = sounds.author_id'
+        const query = 'SELECT sound_id, name, icon, sever_name, categories.category FROM sounds JOIN categories on sounds.category_id = catgories.category_id'
 
         db.query(query, [], (err, results) => {
             if (err) {
@@ -10,16 +10,31 @@ function RequestAllSounds() {
                 return reject(err)
             }
 
-            // results.forEach(result => {
-            //     console.log(result)
-            //     if (result.author_profile) {
-            //         result.author_profile = `mnt/dnd-soundboard/profiles/${result.profile}`
-            //     }
-            //     else {
-            //         result.author_profile = `mnt/dnd-soundboard/profiles/default.png`
-            //         //add default.png on server
-            //     }
-            // })
+            relationsPromise = new Promise((resolveRelationsPromise, rejectRelationsPromise) => {
+                const relationsQuery = "SELECT sound_id, folders.folder_name FROM relations JOIN folders ON folders.folder_id = relations.foledr_id"
+                if(folderId) relationsQuery += " WHERE folder_id = ?"
+                db.query(relationsQuery, [folderId], (relationsErr, relationsResults) => {
+                    if (relationsErr) {
+                        console.error('Error reading relations:', rejectRelationsPromise.message)
+                        return reject(rejectRelationsPromise)
+                    }
+
+                    results.forEach(result => {
+                        var folders = []
+
+                        relationsResults.forEach(relation => {
+                            if (result.sound_id = relation.sound_id) {
+                                folders += relation.folder
+                            }
+                        })
+                        
+                        results.folders = folders
+                        folders = []
+                    })
+                })
+                resolve(resolveRelationsPromise)
+            })
+            relationsQuery()
 
             console.log('Sounds read successfully:', results)
             resolve(results)
