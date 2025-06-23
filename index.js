@@ -80,7 +80,7 @@ app.post('/get-all-categories', (req, res) => {
 })
 
 app.post('/get-all-folders', (req, res) => {
-    Database.GetAllCategories()
+    Database.GetAllFolders()
         .then((result) => {
             res.status(200).json({ success: true, result })
         })
