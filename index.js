@@ -11,6 +11,9 @@ const { v4: uuidv4 } = require('uuid')
 
 const basePath = '/mnt/dnd-soundboard'
 
+const MALINKA_TOKEN = 'w20v4qhhcmr355sclv12n6fov';
+//tak wiem ze brak bezpieczenstwa, kiedys zmienie na cos lepszego
+
 const soundStorage = multer.diskStorage({
     destination: (req, file, cb) => {
         cb(null, path.join(basePath, 'sounds'))
@@ -41,12 +44,14 @@ io.on('connection', (socket) => {
     //inform others about playing sound 
     //gratis
 
-    socket.on('register', (clientType) => {
-        if (clientType === 'raspberry') {
-            socket.join('raspberryRoom')
-            console.log('RPI joined raspberryRoom')
-        }
-    })
+    const token = socket.handshake.auth?.token;
+
+    if (token === MALINKA_TOKEN) {
+        socket.join('raspberryRoom');
+        console.log('Malinka joined:', socket.id);
+    } else {
+        console.log('Client without valid token:', socket.id);
+    }
 
 
     socket.on('disconnect', () => {
