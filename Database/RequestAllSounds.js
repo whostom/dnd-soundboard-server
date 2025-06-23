@@ -2,7 +2,7 @@ const db = require('./DbConnection')
 
 function RequestAllSounds(folderId) {
     return new Promise((resolve, reject) => {
-        const query = 'SELECT sound_id, name, icon, sever_name, categories.category FROM sounds JOIN categories on sounds.category_id = catgories.category_id'
+        const query = `SELECT sound_id, name, icon categories.category FROM sounds JOIN categories on sounds.category_id = catgories.category_id`
 
         db.query(query, [], (err, results) => {
             if (err) {
@@ -11,8 +11,8 @@ function RequestAllSounds(folderId) {
             }
 
             relationsPromise = new Promise((resolveRelationsPromise, rejectRelationsPromise) => {
-                const relationsQuery = "SELECT sound_id, folders.folder_name FROM relations JOIN folders ON folders.folder_id = relations.foledr_id"
-                if(folderId) relationsQuery += " WHERE folder_id = ?"
+                const relationsQuery = `SELECT sound_id, folders.folder_name FROM relations JOIN folders ON folders.folder_id = relations.foledr_id`
+                if(folderId) relationsQuery += ` WHERE folder_id = ?`
                 db.query(relationsQuery, [folderId], (relationsErr, relationsResults) => {
                     if (relationsErr) {
                         console.error('Error reading relations:', rejectRelationsPromise.message)

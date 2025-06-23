@@ -6,20 +6,20 @@ const { Server } = require('socket.io')
 const Database = require('./Database')
 const path = require('path')
 const cors = require('cors')
-const multer = require('multer');
-const { v4: uuidv4 } = require('uuid');
+const multer = require('multer')
+const { v4: uuidv4 } = require('uuid')
 
 const basePath = '/mnt/dnd-soundboard'
 
 const soundStorage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, path.join(basePath, 'sounds'))
-  },
-  filename: (req, file, cb) => {
-    const ext = path.extname(file.originalname)
-    const fileName = new uuidv4()
-    cb(null, fileName + ext)
-  }
+    destination: (req, file, cb) => {
+        cb(null, path.join(basePath, 'sounds'))
+    },
+    filename: (req, file, cb) => {
+        const ext = path.extname(file.originalname)
+        const fileName = new uuidv4()
+        cb(null, fileName + ext)
+    }
 })
 
 const uploadSound = multer({ storage: soundStorage })
@@ -34,13 +34,40 @@ const io = new Server(server, {
 
 const onlineUsers = []
 
+io.on('connection', (socket) => {
+    console.log('User connected:', socket.id)
+    onlineUsers.push(socket.id)
+
+    //inform others about playing sound 
+    //gratis
+
+    socket.on('register', (clientType) => {
+        if (clientType === 'raspberry') {
+            socket.join('raspberryRoom')
+            console.log('RPI joined raspberryRoom')
+        }
+    })
+
+
+    socket.on('disconnect', () => {
+        console.log('User disconnected')
+
+        for (const [userId, socketId] of onlineUsers.entries()) {
+            if (socketId === socket.id) {
+                onlineUsers.delete(userId)
+                break
+            }
+        }
+    })
+})
+
 app.use(cors())
 
 
-app.post('/get-all-categories',(req, res) => {
+app.post('/get-all-categories', (req, res) => {
     Database.GetAllCategories()
         .then((result) => {
-            res.status(200).json({ success: true, result });
+            res.status(200).json({ success: true, result })
         })
         .catch(err => {
             res.status(500).json({ error: 'Failed to get all categories' })
@@ -54,7 +81,7 @@ app.post('/upload-sound', uploadSound.single('soundFile'), (req, res) => {
 
     Database.AddSound(soundName, icon, serverSoundName)
         .then((result) => {
-            res.status(200).json({ success: true, result });
+            res.status(200).json({ success: true, result })
         })
         .catch(err => {
             res.status(500).json({ error: 'Failed to add new sound' })
@@ -69,7 +96,7 @@ app.post('/edit-sound', (req, res) => {
 
     Database.AddSound(soundId, newName, newIcon, newCategory)
         .then((result) => {
-            res.status(200).json({ success: true, result });
+            res.status(200).json({ success: true, result })
         })
         .catch(err => {
             res.status(500).json({ error: 'Failed to edit sound' })
@@ -81,7 +108,7 @@ app.post('/edit-sound', (req, res) => {
 
     Database.DeleteSound(soundId, newName, newIcon, newCategory)
         .then((result) => {
-            res.status(200).json({ success: true, result });
+            res.status(200).json({ success: true, result })
         })
         .catch(err => {
             res.status(500).json({ error: 'Failed to delete sound' })
@@ -93,39 +120,43 @@ app.post('/get-sounds', (req, res) => {
 
     Database.RequestAllSounds(folderId)
         .then((result) => {
-            res.status(200).json({ success: true, result });
+            res.status(200).json({ success: true, result })
         })
         .catch(err => {
             res.status(500).json({ error: 'Failed to get sound list' })
         })
 })
 
-//play sound (soundId)
+
+app.post('/play-sound', (req, res) => {
+    const soundId = req.soundId
+
+    Database.GetServerSoundName(soundId)
+        .then(fileName => {
+            io.to('raspberryRoom').emit('play-sound', fileName)
+        })
+        .catch(err => {
+            console.error(err.message)
+        })
+})
+
 //queue
 
 
 //search
+app.post('/search-sound', (req, res) => {
+    const term = req.searchTerm
 
-
-io.on('connection', (socket) => { 
-    console.log('User connected:', socket.id)
-    onlineUsers.push(socket.id)
-
-    //inform others about playing sound 
-    //gratis
-
-
-    socket.on('disconnect', () => {
-        console.log('User disconnected')
-
-        for (const [userId, socketId] of onlineUsers.entries()) {
-            if (socketId === socket.id) {
-                onlineUsers.delete(userId);
-                break;
-            }
-        }
-    })
+    Database.SearchSound(term)
+        .then((result) => {
+            res.status(200).json({ success: true, result })
+        })
+        .catch(err => {
+            res.status(500).json({ error: 'Failed to find sound' })
+        })
 })
+
+
 
 server.listen(3000, () => {
     console.log('Listening on localhost:3000')
