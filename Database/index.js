@@ -3,10 +3,11 @@ const { AddSound } = require('./AddSound')
 const { PlaySound } = require('./PlaySound')
 const { EditSound } = require('./EditSound')
 const { GetAllCategories } = require('./GetAllCategories')
+const { GetAllFolders } = require('./GetAllFolders')
 const { RequestAllSounds } = require('./RequestAllSounds')
 const { DeleteSound } = require('./DeleteSound')
 const { SearchSound } = require('./SearchSound.js')
-const { GetServerSoundName} = require('./GetServerName.js')
+const { GetServerSoundName} = require('./GetServerSoundName.js')
 
 
 module.exports = {
@@ -14,6 +15,7 @@ module.exports = {
     AddSound,
     PlaySound,
     EditSound,
+    GetAllFolders,
     GetAllCategories,
     RequestAllSounds,
     DeleteSound,

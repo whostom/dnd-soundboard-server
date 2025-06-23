@@ -1,19 +1,19 @@
 const db = require('./DbConnection')
 
-function GetAllCategories() {
+function GetAllFolders() {
     return new Promise((resolve, reject) => {
-        const query = 'SELECT * FROM categories'
+        const query = 'SELECT * FROM folders'
 
         db.query(query, [], (err, results) => {
             if (err) {
-                console.error('Error reading categories', err.message)
+                console.error('Error reading folders', err.message)
                 return reject(err)
             }
 
-            console.log('Categories read successfully:', results)
+            console.log('Folders read successfully:', results)
             resolve(results)
         })
     })
 }
 
-module.exports = { GetAllCategories }
+module.exports = { GetAllFolders }

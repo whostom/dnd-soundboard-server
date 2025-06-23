@@ -79,6 +79,16 @@ app.post('/get-all-categories', (req, res) => {
         })
 })
 
+app.post('/get-all-folders', (req, res) => {
+    Database.GetAllCategories()
+        .then((result) => {
+            res.status(200).json({ success: true, result })
+        })
+        .catch(err => {
+            res.status(500).json({ error: 'Failed to get all folders' })
+        })
+})
+
 app.post('/upload-sound', uploadSound.single('soundFile'), (req, res) => {
     const soundName = req.file.originalname
     const serverSoundName = req.file.filename
