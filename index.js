@@ -9,10 +9,10 @@ const cors = require('cors')
 const multer = require('multer')
 const { v4: uuidv4 } = require('uuid')
 
-const basePath = '/mnt/dnd-soundboard'
+const basePath = '/mnt/dnd-soundboard/sounds'
 
 const MALINKA_TOKEN = 'w20v4qhhcmr355sclv12n6fov';
-//tak wiem ze brak bezpieczenstwa, kiedys zmienie na cos lepszego
+//tak wiem ze brak bezpieczenstwa, kiedys zmienie na cos lepszego .e
 
 const soundStorage = multer.diskStorage({
     destination: (req, file, cb) => {
