@@ -15,7 +15,7 @@ function GetServerSoundName(soundId) {
         return reject(new Error('Sound not found'))
       }
 
-      resolve(results[0].server_file_name)
+      resolve(results[0].server_name)
     })
   })
 }

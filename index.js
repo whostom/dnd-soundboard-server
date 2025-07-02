@@ -9,6 +9,7 @@ const cors = require('cors')
 const multer = require('multer')
 const { v4: uuidv4 } = require('uuid')
 
+app.use(express.json())
 const basePath = '/mnt/dnd-soundboard/sounds'
 
 const MALINKA_TOKEN = 'w20v4qhhcmr355sclv12n6fov';
@@ -92,7 +93,7 @@ app.post('/get-all-folders', (req, res) => {
 app.post('/upload-sound', uploadSound.single('soundFile'), (req, res) => {
     const soundName = req.file.originalname
     const serverSoundName = req.file.filename
-    const icon = req.icon
+    const icon = req.body.icon
 
     Database.AddSound(soundName, icon, serverSoundName)
         .then((result) => {
@@ -104,9 +105,9 @@ app.post('/upload-sound', uploadSound.single('soundFile'), (req, res) => {
 })
 
 app.post('/edit-sound', (req, res) => {
-    const soundId = req.soundId
-    const newName = req.newName
-    const newIcon = req.newIcon
+    const soundId = req.body.soundId
+    const newName = req.body.newName
+    const newIcon = req.body.newIcon
     const newCategory = req.category
 
     Database.AddSound(soundId, newName, newIcon, newCategory)
@@ -119,7 +120,7 @@ app.post('/edit-sound', (req, res) => {
 })
 
 app.post('/edit-sound', (req, res) => {
-    const soundId = req.soundId
+    const soundId = req.body.soundId
 
     Database.DeleteSound(soundId, newName, newIcon, newCategory)
         .then((result) => {
@@ -131,7 +132,7 @@ app.post('/edit-sound', (req, res) => {
 })
 
 app.post('/get-sounds', (req, res) => {
-    const folderId = req.folderId
+    const folderId = req.body.folderId
 
     Database.RequestAllSounds(folderId)
         .then((result) => {
@@ -144,8 +145,7 @@ app.post('/get-sounds', (req, res) => {
 
 
 app.post('/play-sound', (req, res) => {
-    const soundId = req.soundId
-    console.log(soundId)
+    const soundId = req.body.soundId
 
     Database.GetServerSoundName(soundId)
         .then(fileName => {
@@ -162,7 +162,7 @@ app.post('/play-sound', (req, res) => {
 
 //search
 app.post('/search-sound', (req, res) => {
-    const term = req.searchTerm
+    const term = req.body.searchTerm
 
     Database.SearchSound(term)
         .then((result) => {
