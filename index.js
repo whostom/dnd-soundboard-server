@@ -8,6 +8,13 @@ const path = require('path')
 const cors = require('cors')
 const multer = require('multer')
 const { v4: uuidv4 } = require('uuid')
+const ffmpeg = require('fluent-ffmpeg')
+const fs = require('fs')
+const { Readable } = require('stream')
+// const Readable = requ
+// import streamifier from 'streamifier';
+// import { CropAudioFile } from './Database/CropAudioFile'
+
 
 app.use(express.json())
 const basePath = '/mnt/dnd-soundboard/sounds'
@@ -15,16 +22,20 @@ const basePath = '/mnt/dnd-soundboard/sounds'
 const MALINKA_TOKEN = 'w20v4qhhcmr355sclv12n6fov';
 //tak wiem ze brak bezpieczenstwa, kiedys zmienie na cos lepszego .e
 
-const soundStorage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, path.join(basePath, 'sounds'))
-    },
-    filename: (req, file, cb) => {
-        const ext = path.extname(file.originalname)
-        const fileName = new uuidv4()
-        cb(null, fileName + ext)
-    }
-})
+// const uploadSound = multer({ s})
+
+// const soundStorage = multer.diskStorage({
+//     destination: (req, file, cb) => {
+//         cb(null, path.join(basePath, 'sounds'))
+//     },
+//     filename: (req, file, cb) => {
+//         const ext = path.extname(file.originalname)
+//         const fileName = uuidv4()d
+//         cb(null, fileName + ext)
+//     }
+// })
+
+const soundStorage = multer.memoryStorage();
 
 const uploadSound = multer({ storage: soundStorage })
 
@@ -90,18 +101,39 @@ app.post('/get-all-folders', (req, res) => {
         })
 })
 
-app.post('/upload-sound', uploadSound.single('soundFile'), (req, res) => {
-    const soundName = req.file.originalname
-    const serverSoundName = req.file.filename
-    const icon = req.body.icon
+app.post('/upload-sound', uploadSound.single('file'), async (req, res) => {
+    // const soundName = req.file.originalname
+    // const serverSoundName = req.file.filename
+    // const icon = req.body.icon
+    // const soundStart = req.body.soundStart
+    // const soundEnd = req.body.soundStart
+    const { buffer, originalname } = req.file
 
-    Database.AddSound(soundName, icon, serverSoundName)
-        .then((result) => {
-            res.status(200).json({ success: true, result })
-        })
-        .catch(err => {
-            res.status(500).json({ error: 'Failed to add new sound' })
-        })
+    const fileName = uuidv4()
+
+    const ext = path.extname(originalname).toLowerCase()
+
+    const stream = new Readable()
+    stream.push(buffer)
+    stream.push(null)
+
+    const finalPath = path.join(basePath, `${fileName}${ext}`)
+
+    await new Promise((resolve, reject) => {
+        ffmpeg(stream)
+            .inputFormat('mp3')
+            .setStartTime(2)
+            .duration(1)
+            .outputFormat('mp3')
+            .output(finalPath)
+            .on('end', resolve)
+            .on('error', reject)
+            .run()
+    })
+
+    console.log(finalPath)
+
+    res.status(200).json({ success: true, result: null })
 })
 
 app.post('/edit-sound', (req, res) => {
@@ -136,7 +168,7 @@ app.post('/get-sounds', (req, res) => {
 
     Database.RequestAllSounds(folderId)
         .then((result) => {
-          res.status(200).json({ success: true, result: result });
+            res.status(200).json({ success: true, result: result });
         })
         .catch(err => {
             res.status(500).json({ error: 'Failed to get sound list' })
