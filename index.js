@@ -15,11 +15,11 @@ const { Readable } = require('stream')
 // import streamifier from 'streamifier';
 // import { CropAudioFile } from './Database/CropAudioFile'
 
-
+app.use(cors())
 app.use(express.json())
 const basePath = '/mnt/dnd-soundboard/sounds'
 
-const MALINKA_TOKEN = 'w20v4qhhcmr355sclv12n6fov';
+const allowedIP = '192.168.68.166'
 //tak wiem ze brak bezpieczenstwa, kiedys zmienie na cos lepszego .e
 
 // const uploadSound = multer({ s})
@@ -47,38 +47,24 @@ const io = new Server(server, {
     }
 })
 
-const onlineUsers = []
-
-io.on('connection', (socket) => {
-    console.log('User connected:', socket.id)
-    onlineUsers.push(socket.id)
-
-    //inform others about playing sound 
-    //gratis
-
-    const token = socket.handshake.auth?.token;
-
-    if (token === MALINKA_TOKEN) {
-        socket.join('raspberryRoom');
-        console.log('Malinka joined:', socket.id);
-    } else {
-        console.log('Client without valid token:', socket.id);
+io.use((socket, next) => {
+    const ip = socket.handshake.address
+    if (ip === allowedIP || ip === `::ffff:${allowedIP}`) {
+        return next()
     }
 
+    console.log(`Blocked IP: ${ip}`)
+    next(new Error("Unauthorized IP"))
+})
+
+io.on('connection', (socket) => {
+    console.log('Malinka joined:', socket.id)
 
     socket.on('disconnect', () => {
-        console.log('User disconnected')
-
-        for (const [userId, socketId] of onlineUsers.entries()) {
-            if (socketId === socket.id) {
-                onlineUsers.delete(userId)
-                break
-            }
-        }
+        console.log('Malinka disconnected')
     })
 })
 
-app.use(cors())
 
 
 app.post('/get-all-categories', (req, res) => {

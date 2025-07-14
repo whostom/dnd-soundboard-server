@@ -14,7 +14,7 @@ function RequestAllSounds(folderId) {
                 (resolveRelationsPromise, rejectRelationsPromise) => {
                     let relationsQuery = `SELECT sound_id, folders.folder_name FROM relations JOIN folders ON folders.folder_id = relations.folder_id`;
                     if (folderId != null)
-                        relationsQuery += ` WHERE folder_id = ?`;
+                        relationsQuery += ` WHERE folders.folder_id = ?`;
                     db.query(
                         relationsQuery,
                         [folderId],
