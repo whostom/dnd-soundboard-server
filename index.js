@@ -165,7 +165,7 @@ app.post('/play-sound', (req, res) => {
 
 	Database.GetServerSoundName(soundId)
 		.then(fileName => {
-			io.to('raspberryRoom').emit('play-sound', fileName)
+			io.emit('play-sound', fileName)
 			console.log(`Play sound: '${fileName}'`)
 		})
 		.catch(err => {
