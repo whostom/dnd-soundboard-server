@@ -1,28 +1,20 @@
 const db = require('./DbConnection')
 
-function DeleteSound(soundId) {
-    return new Promise((resolve, reject) => {
-        const query = `DELETE FROM sounds WHERE sound_id = ?`
+async function DeleteSound(soundId) {
+	try {
+		const deleteSoundQuery = `DELETE FROM sounds WHERE sound_id = ?`
+		const [soundResult] = await db.query(deleteSoundQuery, [soundId])
+		console.log('Sound deleted successfully:', soundResult)
 
-        db.query(query, soundId, (err, result) => {
-            if (err) {
-                console.error('Error deleting a sound:', err.message);
-                return reject(err);
-            }
-            console.log('Sound deleted successfully:', result);
-        });
+		const deleteRelationsQuery = `DELETE FROM relations WHERE sound_id = ?`
+		const [relationsResult] = await db.query(deleteRelationsQuery, [soundId])
+		console.log('Sound relations deleted successfully:', relationsResult)
 
-        const relationsQuery = `DELETE FROM relations WHERE sound_id = ?`
-        db.query(relationsQuery, soundId, (err, result) => {
-            if (err) {
-                console.error('Error deleting sound relations:', err.message);
-                return reject(err);
-            }
-            console.log('Sound relations deleted successfully:', result);
-        });
-
-        return resolve()
-    });
+		return true
+	} catch (err) {
+		console.error('Error deleting sound or relations:', err.message)
+		throw err
+	}
 }
 
 module.exports = { DeleteSound }

@@ -1,19 +1,14 @@
 const db = require('./DbConnection')
 
-function GetAllCategories() {
-    return new Promise((resolve, reject) => {
-        const query = 'SELECT * FROM categories'
-
-        db.query(query, [], (err, results) => {
-            if (err) {
-                console.error('Error reading categories', err.message)
-                return reject(err)
-            }
-
-            console.log('Categories read successfully:', results)
-            resolve(results)
-        })
-    })
+async function GetAllCategories() {
+	try {
+		const [results] = await db.query('SELECT * FROM categories')
+		console.log('Categories read successfully:', results)
+		return results
+	} catch (err) {
+		console.error('Error reading categories:', err.message)
+		throw err
+	}
 }
 
 module.exports = { GetAllCategories }

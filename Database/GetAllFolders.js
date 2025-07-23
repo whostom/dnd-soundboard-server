@@ -1,19 +1,14 @@
 const db = require('./DbConnection')
 
-function GetAllFolders() {
-    return new Promise((resolve, reject) => {
-        const query = 'SELECT * FROM folders'
-
-        db.query(query, [], (err, results) => {
-            if (err) {
-                console.error('Error reading folders', err.message)
-                return reject(err)
-            }
-
-            console.log('Folders read successfully:', results)
-            resolve(results)
-        })
-    })
+async function GetAllFolders() {
+	try {
+		const [results] = await db.query('SELECT * FROM folders')
+		console.log('Folders read successfully:', results)
+		return results
+	} catch (err) {
+		console.error('Error reading folders:', err.message)
+		throw err
+	}
 }
 
 module.exports = { GetAllFolders }

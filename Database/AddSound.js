@@ -1,20 +1,15 @@
 const db = require('./DbConnection')
 
-//tylko mp3!!!!!
-
-function AddSound(soundName, icon, serverSoundName) {
-    return new Promise((resolve, reject) => {
-        const query = 'INSERT INTO `sounds` (`name`,`icon`, `server_name`, ) VALUES (?, ?, ?)'
-
-        db.query(query, [soundName, icon, serverSoundName], (err, result) => {
-            if (err) {
-                console.error('Error adding sound to database:', err.message);
-                return reject(err);
-            }
-            console.log('Sound added successfully:', result);
-            return resolve()
-        });
-    });
+async function AddSound(soundName, icon, serverSoundName) {
+	const query = 'INSERT INTO `sounds` (`name`, `icon`, `server_name`) VALUES (?, ?, ?)'
+	try {
+		const [result] = await db.query(query, [soundName, icon, serverSoundName])
+		console.log('Sound added successfully:', result)
+		return result
+	} catch (err) {
+		console.error('Error adding sound to database:', err.message)
+		throw err
+	}
 }
 
 module.exports = { AddSound }

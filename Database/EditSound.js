@@ -1,29 +1,38 @@
 const db = require('./DbConnection')
 
-function EditSound(soundId, name, icon, categoryId) {
-    return new Promise((resolve, reject) => {
-        var query = 'UPDATE sounds SET '
-        if(name) query += `sound_name = '${name}'`
-        if(icon) {
-            if(name) query += `,`
-            query += `sound_icon = '${icon}'`
-        }
-        if(categoryId) {
-            if(icon || name) query += `,`
-            query += `category_id = '${categoryId}'`
-        }
-        query += ` WHERE sound_id = '${soundId}'`
-        
-        db.query(query, [], (err, results) => {
-            if (err) {
-                console.error('Error updating categories', err.message)
-                return reject(err)
-            }
+async function EditSound(soundId, name, icon, categoryId) {
+	try {
+		const fields = []
+		const values = []
 
-            console.log('Sound updated successfully:', results)
-            resolve(results)
-        })
-    })
+		if (name) {
+			fields.push('name = ?')
+			values.push(name)
+		}
+		if (icon) {
+			fields.push('icon = ?')
+			values.push(icon)
+		}
+		if (categoryId) {
+			fields.push('category_id = ?')
+			values.push(categoryId)
+		}
+
+		if (fields.length === 0) {
+			throw new Error('No fields provided to update')
+		}
+
+		const query = `UPDATE sounds SET ${fields.join(', ')} WHERE sound_id = ?`
+		values.push(soundId)
+
+		const [result] = await db.query(query, values)
+
+		console.log('Sound updated successfully:', result)
+		return result
+	} catch (err) {
+		console.error('Error updating sound:', err.message)
+		throw err
+	}
 }
 
 module.exports = { EditSound }
