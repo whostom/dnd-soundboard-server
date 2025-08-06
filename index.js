@@ -98,11 +98,15 @@ app.post('/get-all-folders', (req, res) => {
 })
 
 app.post('/upload-sound', uploadSound.single('file'), async (req, res) => {
-	// const soundName = req.file.originalname
-	// const serverSoundName = req.file.filename
-	// const icon = req.body.icon
-	// const soundStart = req.body.soundStart
-	// const soundEnd = req.body.soundStart
+  const name = req.body.name
+  const icon = req.body.icon
+  const category = req.body.category
+  const start = req.body.start * 1
+  const end = req.body.end * 1
+  
+
+  console.log(name, icon, category, start, end)
+
 	const { buffer, originalname } = req.file
 
 	const fileName = uuidv4()
@@ -115,20 +119,36 @@ app.post('/upload-sound', uploadSound.single('file'), async (req, res) => {
 
 	const finalPath = path.join(basePath, `${fileName}${ext}`)
 
-	await new Promise((resolve, reject) => {
-		ffmpeg(stream)
+
+  if (end == -1) {
+    await new Promise((resolve, reject) => {
+    ffmpeg(stream)
 			.inputFormat('mp3')
-			.setStartTime(2)
+			.setStartTime(start)
 			.duration(1)
 			.outputFormat('mp3')
 			.output(finalPath)
 			.on('end', resolve)
 			.on('error', reject)
 			.run()
-	})
+    })
+  }
+  else {
+    await new Promise((resolve, reject) => {
+      ffmpeg(stream)
+        .inputFormat('mp3')
+        .setStartTime(start)
+        .duration(end - start)
+        .outputFormat('mp3')
+        .output(finalPath)
+        .on('end', resolve)
+        .on('error', reject)
+        .run()
+      })
+  }
 
 	console.log(finalPath)
-	//add sound to database (uuid!!!)
+  Database.AddSound(name, icon, `${fileName}${ext}`, category)
 
 	res.status(200).json({ success: true, result: null })
 })

@@ -1,9 +1,9 @@
 const db = require('./DbConnection')
 
-async function AddSound(soundName, icon, serverSoundName) {
-	const query = 'INSERT INTO `sounds` (`name`, `icon`, `server_name`) VALUES (?, ?, ?)'
+async function AddSound(soundName, icon, serverSoundName, category_id) {
+	const query = 'INSERT INTO `sounds` (`name`, `icon`, `server_name`, `category_id`) VALUES (?, ?, ?, ?)'
 	try {
-		const [result] = await db.query(query, [soundName, icon, serverSoundName])
+		const [result] = await db.query(query, [soundName, icon, serverSoundName, category_id])
 		console.log('Sound added successfully:', result)
 		return result
 	} catch (err) {
